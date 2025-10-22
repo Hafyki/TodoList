@@ -1,0 +1,13 @@
+{
+  "name": "sap-m-sample--upload-setwith-table-plugin--responsive-table-simple",
+  "version": "1.0.0",
+  "author": "SAP SE",
+  "description": "Sample: Plugin for Responsive Table (sap.m.Table)",
+  "scripts": {
+    "start": "ui5 serve",
+    "build": "ui5 build"
+  },
+  "devDependencies": {
+    "@ui5/cli": "^4"
+  }
+}
