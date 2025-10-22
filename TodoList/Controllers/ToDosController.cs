@@ -8,9 +8,9 @@ namespace TodoList.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ToDosController(ToDoListDbContext dbContext) : ControllerBase
+    public class ToDosController(ApplicationDbContext dbContext) : ControllerBase
     {
-       private readonly ToDoListDbContext dbContext = dbContext;
+       private readonly ApplicationDbContext _dbContext = dbContext;
         
         //GET ALL       
         [HttpGet]
@@ -24,7 +24,7 @@ namespace TodoList.Controllers
             if (pageNumber <= 0) pageNumber = 1;
             if (pageSize <= 0) pageSize = 10;
 
-            IQueryable<ToDo> query = dbContext.Quests.AsQueryable();
+            IQueryable<ToDo> query = _dbContext.ToDos.AsQueryable();
 
             if (!string.IsNullOrEmpty(filter))
             {
@@ -43,6 +43,7 @@ namespace TodoList.Controllers
             var quests = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .Include(t => t.User)
                 .ToListAsync();
 
             return Ok(quests);
@@ -52,7 +53,9 @@ namespace TodoList.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ToDo>> GetById(int id)
         {
-            var quest = await dbContext.Quests.FindAsync(id);
+            var quest = await _dbContext.ToDos
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(i => i.Id == id);
             if (quest == null)
                 return NotFound();
 
@@ -62,7 +65,7 @@ namespace TodoList.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<ToDo>> ChangeCompletedStatus(int id)
         {
-            var quest = await dbContext.Quests.FindAsync(id);
+            var quest = await _dbContext.ToDos.FindAsync(id);
             if (quest == null)
                 return NotFound();
             if (quest.IsCompleted == false)
@@ -70,8 +73,8 @@ namespace TodoList.Controllers
             else
                 quest.IsCompleted = false;
 
-            dbContext.Quests.Update(quest);
-            await dbContext.SaveChangesAsync();
+            _dbContext.ToDos.Update(quest);
+            await _dbContext.SaveChangesAsync();
             return Ok(quest);
         }
         //POST
@@ -80,17 +83,17 @@ namespace TodoList.Controllers
         {
             if (newQuest == null)
                 return BadRequest();
-            dbContext.Quests.Add(newQuest);
-            await dbContext.Database.OpenConnectionAsync();
+            _dbContext.ToDos.Add(newQuest);
+            await _dbContext.Database.OpenConnectionAsync();
             try
             {
-                await dbContext.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Quests ON");
-                await dbContext.SaveChangesAsync();
-                await dbContext.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.Quests OFF");
+                await _dbContext.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ToDos ON");
+                await _dbContext.SaveChangesAsync();
+                await _dbContext.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ToDos OFF");
             }
             finally
             {
-                await dbContext.Database.CloseConnectionAsync();
+                await _dbContext.Database.CloseConnectionAsync();
             }
             
 
