@@ -2,8 +2,8 @@
 {
     public class User
     {
-        public Guid id { get; set; }
+        public int Id { get; set; }
         public required string name { get; set; }
-        public List<Task> tasks;
+        public List<Task>? tasks;
     }
 }
