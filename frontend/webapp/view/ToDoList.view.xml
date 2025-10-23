@@ -1,0 +1,137 @@
+<mvc:View
+    controllerName="com.todolist.controller.ToDoList"
+    height="100%"
+	displayBlock="true"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:f="sap.f"
+	xmlns:core="sap.ui.core"
+	xmlns:mdc="sap.ui.mdc"
+	xmlns:mdct="sap.ui.mdc.table"
+	xmlns:vm="sap.ui.fl.variants"
+	xmlns:Table1="sap.ui.mdc.table.Table"
+	xmlns:upload="sap.m.upload"
+	xmlns:mdcat="sap.ui.mdc.actiontoolbar">
+    
+    <f:DynamicPage id="page">
+		<f:content>
+			<Table
+				id="table-uploadSet"
+				sticky="ColumnHeaders,HeaderToolbar"
+				width="auto"
+				fixedLayout="false"
+				inset="true"
+				autoPopinMode="true"
+				hiddenInPopin="None"
+				items="{todoModel>/items}"
+                noDataText="Nenhuma tarefa encontrada.">
+                <headerToolbar>
+                        <OverflowToolbar>
+                            <Text
+                                id = "totalTasks"
+                                text="Tarefas"
+                                level="H2"
+                            />
+                            <ToolbarSpacer />
+                
+                            <SearchField
+                                width="50%"
+                                liveChange=".onSearch"
+                            >
+                                <layoutData>
+                                    <OverflowToolbarLayoutData
+                                        priority="NeverOverflow"
+                                    />
+                                </layoutData>
+                            </SearchField>
+                            <ToolbarSeparator />
+                            <Select
+                                id="sortFieldSelect"
+                                change=".onSortFieldChange"
+                            >
+                                <core:Item key="id" text="ID" />
+                                <core:Item key="title" text="Título" />
+                                <core:Item key="completed" text="Status" />
+                            </Select>
+                            <Button
+                                id="sortDirectionButton"
+                                icon="sap-icon://sort-ascending"
+                                tooltip="Alternar ordem"
+                                press=".onToggleSortDirection"
+                            />
+                            <Select
+                                id="pageSizeSelect"
+                                selectedKey="10"
+                                change=".onPageSizeChange"
+                            >
+                                
+                                <core:Item key="10" text="10 por página" />
+                                <core:Item key="20" text="20 por página" />
+                                <core:Item key="50" text="50 por página" />
+                            </Select>
+                            <Button
+                                id="prevPageButton"
+                                icon="sap-icon://navigation-left-arrow"
+                                text="Anterior"
+                                press=".onPrevPage"
+                            />
+                            <Button
+                                id="nextPageButton"
+                                icon="sap-icon://navigation-right-arrow"
+                                text="Próxima"
+                                press=".onNextPage"
+                            />
+
+                            <ToolbarSeparator />
+                            <Button
+                                id="syncData"
+                                text="Sincronizar"
+                                enabled="true"
+                                press=".onSyncData"
+                            />
+                            <Text id="pageIndicator" text="" />
+                        </OverflowToolbar>
+                </headerToolbar>
+                <columns>
+                    <Column id="title" importance="High">
+                        <header>
+                            <Label text="Título" />
+                        </header>
+                    </Column>
+                    <Column id="id">
+                        <header>
+                            <Label text="ID" />
+                        </header>
+                    </Column>
+                    <Column id="userId">
+                        <header>
+                            <Label text="Usuario" />
+                        </header>
+                    </Column>
+                    <Column id="completed">
+                        <header>
+                            <Label text="Status" />
+                        </header>
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="{todoModel>title}"/>
+                            <Text text="{todoModel>id}"/>
+                            <Text text="{todoModel>userId}"/>
+                            <CheckBox
+                                selected="{todoModel>completed}"
+                                text=""
+                                enabled="true"
+                                select=".onStatusChange"
+                            />
+                            
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+            
+		</f:content>
+	</f:DynamicPage>
+</mvc:View>
