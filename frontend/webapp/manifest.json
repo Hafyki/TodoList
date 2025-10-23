@@ -1,0 +1,58 @@
+{
+	"sap.app": {
+		"id": "com.todolist",
+		"type": "application",
+		"applicationVersion": {
+			"version": "1.0.0"
+		},
+		"title": "Responsive Table",
+		"description": "Responsive Table application",
+		"dataSources": {
+			"todoRemoteService": {
+                "uri": "http://localhost:5128/api/todos",
+                "type": "REST"
+            }
+		}
+	},
+	"sap.ui": {
+		"technology": "UI5",
+		"deviceTypes": {
+			"desktop": true,
+			"tablet": true,
+			"phone": true
+		}
+	},
+	"sap.ui5": {
+		"flexEnabled": false,
+		"resourceRoots": {
+            "responsive.table.sample": "./"
+        },
+		"dependencies": {
+			"minUI5Version": "1.120.0",
+			"libs": {
+				"sap.f": {},
+				"sap.m": {},
+				"sap.ui.core": {},
+				"sap.ui.fl": {},
+				"sap.ui.mdc": {},
+				"sap.ui.table": {}
+			}
+		},
+		"contentDensities": {
+			"compact": true,
+			"cozy": true
+		},
+		"handleValidation": true,
+		"models": {
+			"todoModel": {
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "http://localhost:5128/api/todos",
+				"settings": {}
+    		}
+		},
+		"rootView": {
+			"viewName": "com.todolist.view.ToDoList",
+			"type": "XML"
+		}
+	}
+}
