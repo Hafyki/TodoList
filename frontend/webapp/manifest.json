@@ -1,6 +1,6 @@
 {
 	"sap.app": {
-		"id": "responsive.table.sample",
+		"id": "com.todolist",
 		"type": "application",
 		"applicationVersion": {
 			"version": "1.0.0"
@@ -8,10 +8,10 @@
 		"title": "Responsive Table",
 		"description": "Responsive Table application",
 		"dataSources": {
-			"documentDataSource" : {
-				"uri": "model/documents.json",
-				"type": "JSON"
-			}
+			"todoRemoteService": {
+                "uri": "http://localhost:5128/api/todos",
+                "type": "REST"
+            }
 		}
 	},
 	"sap.ui": {
@@ -23,18 +23,6 @@
 		}
 	},
 	"sap.ui5": {
-		"config": {
-			"sample": {
-				"files": [
-					"view/UploadSetwithTable.view.xml",
-					"model/documents.json",
-					"manifest.json",
-					"controller/Page.controller.js",
-					"view/fragment/AddViaUrl.fragment.xml",
-					"model/mockserver.js"
-				]
-			}
-		},
 		"flexEnabled": false,
 		"resourceRoots": {
             "responsive.table.sample": "./"
@@ -56,16 +44,15 @@
 		},
 		"handleValidation": true,
 		"models": {
-			"documents": {
+			"todoModel": {
 				"type": "sap.ui.model.json.JSONModel",
-				"dataSource": "documentDataSource"
-			}
+				"uri": "http://localhost:5128/api/todos",
+				"settings": {}
+    		}
 		},
 		"rootView": {
-			"viewName": "responsive.table.sample.view.UploadSetwithTable",
-			"type": "XML",
-			"async": true,
-			"id": "sample"
+			"viewName": "com.todolist.view.ToDoList",
+			"type": "XML"
 		}
 	}
 }

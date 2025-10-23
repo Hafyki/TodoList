@@ -13,6 +13,17 @@ builder.Services.AddOpenApi();
 //DataBase Connection
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CORS policy", policy =>
+                      {
+                          
+                          policy.WithOrigins("http://localhost:8080")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                      });
+});
+
 builder.Services.AddScoped<SyncService>();
 
 var app = builder.Build();
@@ -23,6 +34,7 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
     app.MapOpenApi();
 }
+app.UseCors("CORS policy");
 
 app.UseHttpsRedirection();
 

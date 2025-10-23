@@ -1,13 +1,13 @@
 {
-  "name": "sap-m-sample--upload-setwith-table-plugin--responsive-table-simple",
+  "name": "com.todolist",
   "version": "1.0.0",
   "author": "SAP SE",
-  "description": "Sample: Plugin for Responsive Table (sap.m.Table)",
+  "description": "Frontend da aplicação com SAP UI5",
   "scripts": {
     "start": "ui5 serve",
     "build": "ui5 build"
   },
   "devDependencies": {
-    "@ui5/cli": "^4"
+    "@ui5/cli": "^4.0.30"
   }
 }

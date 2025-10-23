@@ -6,7 +6,7 @@ using TodoList.Models.Entities;
 
 namespace TodoList.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/todos")]
     [ApiController]
     public class ToDosController(ApplicationDbContext dbContext) : ControllerBase
     {
@@ -17,19 +17,15 @@ namespace TodoList.Controllers
         public async Task<ActionResult<IEnumerable<ToDo>>> Get(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string? filter = null,
             [FromQuery] string? sortBy = "Id",
-            [FromQuery] bool isDescending = false)
+            [FromQuery] bool isDescending = false,
+            [FromQuery] string? title = null
+            )
         {
             if (pageNumber <= 0) pageNumber = 1;
             if (pageSize <= 0) pageSize = 10;
 
             IQueryable<ToDo> query = _dbContext.ToDos.AsQueryable();
-
-            if (!string.IsNullOrEmpty(filter))
-            {
-                query = query.Where(q =>q.Title.Contains(filter));
-            }
 
             query = sortBy?.ToLower() switch
             {
@@ -37,6 +33,11 @@ namespace TodoList.Controllers
                 "completed" => isDescending ? query.OrderByDescending(q => q.IsCompleted) : query.OrderBy(q => q.IsCompleted),
                 "id" => isDescending ? query.OrderByDescending(q => q.Id) : query.OrderBy(q => q.Id)
             };
+            
+            if (!string.IsNullOrEmpty(title))
+            {
+                query = query.Where(q => q.Title.Contains(title));
+            }
 
             var totalItems = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
@@ -45,8 +46,17 @@ namespace TodoList.Controllers
                 .Take(pageSize)
                 .Include(t => t.User)
                 .ToListAsync();
+            
+            var result = new
+            {
+                pageNumber,
+                pageSize,
+                totalItems,
+                totalPages,
+                items = quests
+            };
 
-            return Ok(quests);
+            return Ok(result);
         }
 
         //GET BY ID

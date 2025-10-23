@@ -1,6 +1,6 @@
 specVersion: "4.0"
 metadata:
-  name: sap-m-sample--upload-setwith-table-plugin--responsive-table-simple
+  name: com.todolist
 type: application
 framework:
   name: SAPUI5
