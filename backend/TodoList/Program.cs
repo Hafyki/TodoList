@@ -24,6 +24,7 @@ builder.Services.AddCors(options =>
                       });
 });
 
+builder.Services.AddScoped<ToDoService>();
 builder.Services.AddScoped<SyncService>();
 
 var app = builder.Build();

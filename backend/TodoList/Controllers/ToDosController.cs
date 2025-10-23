@@ -1,113 +1,62 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TodoList.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using TodoList.Models.Entities;
+using TodoList.Services;
 
 namespace TodoList.Controllers
 {
     [Route("api/todos")]
     [ApiController]
-    public class ToDosController(ApplicationDbContext dbContext) : ControllerBase
+    public class ToDosController : ControllerBase
     {
-       private readonly ApplicationDbContext _dbContext = dbContext;
-        
-        //GET ALL       
+        private readonly ToDoService _toDoService;
+
+        public ToDosController(ToDoService toDoService)
+        {
+            _toDoService = toDoService;
+        }
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ToDo>>> Get(
+        public async Task<IActionResult> Get(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string? sortBy = "Id",
             [FromQuery] bool isDescending = false,
             [FromQuery] string? title = null
-            )
+        )
         {
-            if (pageNumber <= 0) pageNumber = 1;
-            if (pageSize <= 0) pageSize = 10;
-
-            IQueryable<ToDo> query = _dbContext.ToDos.AsQueryable();
-
-            query = sortBy?.ToLower() switch
-            {
-                "title" => isDescending ? query.OrderByDescending(q => q.Title) : query.OrderBy(q => q.Title),
-                "completed" => isDescending ? query.OrderByDescending(q => q.IsCompleted) : query.OrderBy(q => q.IsCompleted),
-                "id" => isDescending ? query.OrderByDescending(q => q.Id) : query.OrderBy(q => q.Id)
-            };
-            
-            if (!string.IsNullOrEmpty(title))
-            {
-                query = query.Where(q => q.Title.Contains(title));
-            }
-
-            var totalItems = await query.CountAsync();
-            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-            var quests = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Include(t => t.User)
-                .ToListAsync();
-            
-            var result = new
-            {
-                pageNumber,
-                pageSize,
-                totalItems,
-                totalPages,
-                items = quests
-            };
-
+            var result = await _toDoService.GetAll(pageNumber, pageSize, sortBy, isDescending, title);
             return Ok(result);
         }
 
-        //GET BY ID
         [HttpGet("{id}")]
-        public async Task<ActionResult<ToDo>> GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var quest = await _dbContext.ToDos
-                .Include(t => t.User)
-                .FirstOrDefaultAsync(i => i.Id == id);
-            if (quest == null)
-                return NotFound();
-
-            return Ok(quest);
+            var todo = await _toDoService.GetById(id);
+            if (todo == null) return NotFound();
+            return Ok(todo);
         }
-        //PUT
+
         [HttpPut("{id}")]
-        public async Task<ActionResult<ToDo>> ChangeCompletedStatus(int id)
+        public async Task<IActionResult> ChangeCompletedStatus(int id)
         {
-            var quest = await _dbContext.ToDos.FindAsync(id);
-            if (quest == null)
-                return NotFound();
-            if (quest.IsCompleted == false)
-                quest.IsCompleted = true;
-            else
-                quest.IsCompleted = false;
-
-            _dbContext.ToDos.Update(quest);
-            await _dbContext.SaveChangesAsync();
-            return Ok(quest);
-        }
-        //POST
-        [HttpPost]
-        public async Task<ActionResult<ToDo>> Add(ToDo newQuest)
-        {
-            if (newQuest == null)
-                return BadRequest();
-            _dbContext.ToDos.Add(newQuest);
-            await _dbContext.Database.OpenConnectionAsync();
             try
             {
-                await _dbContext.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ToDos ON");
-                await _dbContext.SaveChangesAsync();
-                await _dbContext.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ToDos OFF");
+                var todo = await _toDoService.ChangeCompletedStatus(id);
+                if (todo == null) return NotFound();
+                return Ok(todo);
             }
-            finally
+            catch (InvalidOperationException ex)
             {
-                await _dbContext.Database.CloseConnectionAsync();
+                return BadRequest(new { message = ex.Message });
             }
-            
+        }
 
-            return CreatedAtAction(nameof(GetById), new {id = newQuest.Id}, newQuest);
+        [HttpPost]
+        public async Task<IActionResult> Add(ToDo newToDo)
+        {
+            if (newToDo == null) return BadRequest();
+            var todo = await _toDoService.Add(newToDo);
+            return CreatedAtAction(nameof(GetById), new { id = todo.Id }, todo);
         }
     }
 }

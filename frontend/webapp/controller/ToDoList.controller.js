@@ -51,6 +51,7 @@ sap.ui.define([
                     this._pageSize = data.pageSize;
                     this._currentPage = data.pageNumber;
 
+                    this._updateTotalTasks();
                     this._updatePageIndicator();
                 })
                 .catch(function (error) {
@@ -61,9 +62,14 @@ sap.ui.define([
                 });
         },
 
-        _updatePageIndicator: function () {
+        _updatePageIndicator:function () {
             var oText = this.byId("pageIndicator");
             oText.setText("Página " + this._currentPage + " de " + (this._totalPages || 1));
+        },
+        
+        _updateTotalTasks:function () {
+            var oText = this.byId("totalTasks");
+            oText.setText("Tarefas (" + this._totalItems + ")");
         },
 
         //--- Busca ---
@@ -127,31 +133,42 @@ sap.ui.define([
         //--- Alternar estado da tarefa ---
         onStatusChange: function (oEvent) {
             var bSelected = oEvent.getParameter("selected");
-
-            var oContext = oEvent.getSource().getBindingContext("todoModel");
+            var oSource = oEvent.getSource();
+            var oContext = oSource.getBindingContext("todoModel");
             var oData = oContext.getObject();
 
-            oData.completed = bSelected;
-            oContext.getModel().refresh(true);
+            
 
             sap.ui.core.BusyIndicator.show(0);
 
             fetch(`http://localhost:5128/api/todos/${oData.id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(oData)
-            })
-                .then(response => {
-                    if (!response.ok) throw new Error("Erro ao atualizar status");
-                    return response.json();
+                headers: { "Content-Type": "application/json" }
+            }).then(async response => {
+                    // Captura o corpo da resposta APENAS UMA VEZ
+                    const responseText = await response.text();
+
+                    if (!response.ok) {
+                        let errorMessage = "Erro ao atualizar status.";
+
+                        if (responseText) errorMessage = responseText;
+
+                        throw new Error(errorMessage);
+                    }
+
                 })
                 .then(() => {
+                    oData.completed = bSelected;
+                    oContext.getModel().refresh(true);
                     sap.m.MessageToast.show("Status atualizado com sucesso!");
                 })
                 .catch(error => {
                     console.error("Erro ao atualizar status:", error);
-                    sap.m.MessageToast.show("Falha ao atualizar status");
-                }).finally(() => {
+
+                    oSource.setSelected(!bSelected);
+                    sap.m.MessageToast.show(error.message || "Falha ao atualizar status.");
+                })
+                .finally(() => {
                     sap.ui.core.BusyIndicator.hide();
                 });
         },

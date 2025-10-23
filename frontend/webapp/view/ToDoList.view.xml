@@ -27,8 +27,9 @@
                 noDataText="Nenhuma tarefa encontrada.">
                 <headerToolbar>
                         <OverflowToolbar>
-                            <Title
-                                text="Tarefas ({= ${todoModel>/items}.length})"
+                            <Text
+                                id = "totalTasks"
+                                text="Tarefas"
                                 level="H2"
                             />
                             <ToolbarSpacer />
