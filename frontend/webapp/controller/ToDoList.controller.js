@@ -1,10 +1,6 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
-    "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator",
-    "sap/m/MessageToast",
-    "sap/m/MessageBox"
-], function (Controller, Filter, FilterOperator, MessageToast, MessageBox) {
+], function (Controller) {
     "use strict";
 
     return Controller.extend("com.todolist.controller.ToDoList", {
@@ -110,7 +106,7 @@ sap.ui.define([
         // --- Tamanho da página ---
         onPageSizeChange: function (oEvent) {
             this._pageSize = parseInt(oEvent.getParameter("selectedItem").getKey(), 10);
-            this._currentPage = 1; // volta para a primeira página
+            this._currentPage = 1;
             this._fetchFilteredData();
         },
 
@@ -178,8 +174,6 @@ sap.ui.define([
             })
             .then(data => {
                 sap.m.MessageToast.show("Sincronização concluída com sucesso!");
-                
-                // Atualiza a tabela após o sync
                 this._fetchFilteredData();
             })
             .catch(error => {
