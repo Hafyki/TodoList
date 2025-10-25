@@ -7,9 +7,9 @@ namespace TodoList.Controllers
     [ApiController]
     public class SyncController : ControllerBase
     {
-        private readonly SyncService _syncService;
+        private readonly ISyncService _syncService;
 
-        public SyncController(SyncService syncService)
+        public SyncController(ISyncService syncService)
         {
             _syncService = syncService;
         }

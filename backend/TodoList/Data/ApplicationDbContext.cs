@@ -18,6 +18,11 @@ namespace TodoList.Data
                 .HasForeignKey(e => e.UserId)
                 .HasPrincipalKey(e => e.Id);
         }
+
+        internal async Task FindAsync(int userId)
+        {
+            throw new NotImplementedException();
+        }
     }
        
 }

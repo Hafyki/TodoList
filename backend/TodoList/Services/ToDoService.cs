@@ -1,22 +1,29 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
+using System.Linq;
 using TodoList.Data;
+using TodoList.DTO;
 using TodoList.Models.Entities;
 
 namespace TodoList.Services
 {
-    public class ToDoService
+    public class ToDoService : IToDoService
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly IUserService _userService;
 
-        public ToDoService(ApplicationDbContext dbContext)
+        public ToDoService(ApplicationDbContext dbContext, IUserService userService)
         {
             _dbContext = dbContext;
+            _userService = userService;
         }
 
+        //GET ALL
         public async Task<object> GetAll(int pageNumber = 1, int pageSize = 10, string? sortBy = "Id", bool isDescending = false, string? title = null)
         {
             if (pageNumber <= 0) pageNumber = 1;
-            if (pageSize <= 0) pageSize = 10;
+            if (pageSize <= 10) pageSize = 10;
 
             IQueryable<ToDo> query = _dbContext.ToDos.AsQueryable();
 
@@ -49,14 +56,14 @@ namespace TodoList.Services
                 items
             };
         }
-
+        //GET BY ID
         public async Task<ToDo?> GetById(int id)
         {
             return await _dbContext.ToDos
                 .Include(t => t.User)
                 .FirstOrDefaultAsync(i => i.Id == id);
         }
-
+        //PUT - TROCAR STATUS DA TAREFA
         public async Task<ToDo?> ChangeCompletedStatus(int id)
         {
             var todo = await _dbContext.ToDos.FindAsync(id);
@@ -79,25 +86,55 @@ namespace TodoList.Services
             await _dbContext.SaveChangesAsync();
             return todo;
         }
-
-        public async Task<ToDo> Add(ToDo newToDo)
+        //POST
+        public async Task<ToDo> Add(ToDoDto newToDoDto)
         {
-            if (newToDo == null) throw new ArgumentNullException(nameof(newToDo));
+            if (newToDoDto == null)
+                throw new ArgumentNullException(nameof(newToDoDto));
 
-            _dbContext.ToDos.Add(newToDo);
-            await _dbContext.Database.OpenConnectionAsync();
+            // Verifica se o usuário existe
+            var user = await _dbContext.Users.FindAsync(newToDoDto.UserId);
+            if (user == null)
+                throw new InvalidOperationException($"Usuário com ID {newToDoDto.UserId} não encontrado.");
+
+            // Verifica se já existe um ToDo com o mesmo Id
+            var existingToDo = await _dbContext.ToDos.FindAsync(newToDoDto.Id);
+            if (existingToDo != null)
+                throw new InvalidOperationException($"Já existe uma tarefa com o ID {newToDoDto.Id}.");
+
+            // Cria a entidade a partir do DTO
+            var newToDoEntity = new ToDo
+            {
+                Id = newToDoDto.Id, // ← Permite ID manual
+                Title = newToDoDto.Title,
+                IsCompleted = newToDoDto.IsCompleted,
+                UserId = newToDoDto.UserId,
+                User = user
+            };
+
+            // Abre transação manual apenas porque usaremos IDENTITY_INSERT
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
             try
             {
-                await _dbContext.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ToDos ON");
+                // Permite inserir valor no campo identity
+                await _dbContext.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ToDos ON;");
+
+                _dbContext.ToDos.Add(newToDoEntity);
                 await _dbContext.SaveChangesAsync();
-                await _dbContext.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ToDos OFF");
+
+                await _dbContext.Database.ExecuteSqlRawAsync("SET IDENTITY_INSERT dbo.ToDos OFF;");
+
+                await transaction.CommitAsync();
             }
-            finally
+            catch
             {
-                await _dbContext.Database.CloseConnectionAsync();
+                await transaction.RollbackAsync();
+                throw;
             }
 
-            return newToDo;
+            return newToDoEntity;
         }
+
     }
 }

@@ -6,27 +6,37 @@ using TodoList.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddHttpClient();
+
 builder.Services.AddControllers();
+
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-//Banco de Dados
+//DataBase Connection
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//Adição do CORS para evitar problemas rodando a aplicação localmente
+//Routing Config
+builder.Services.AddRouting(options =>
+{
+    options.LowercaseUrls = true;
+});
+
+//CORS 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CORS policy", policy =>
-                      {
-                          policy.WithOrigins("http://localhost:8080")
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
-                      });
+    {
+
+        policy.WithOrigins("http://localhost:8080")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
-//Services
-builder.Services.AddScoped<ToDoService>();
-builder.Services.AddScoped<SyncService>();
+builder.Services.AddHttpClient<ISyncService>();
+builder.Services.AddScoped<IToDoService, ToDoService>();
+builder.Services.AddScoped<ISyncService, SyncService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
