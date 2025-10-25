@@ -6,21 +6,20 @@ using TodoList.DTO;
 using TodoList.Models.Entities;
 
 namespace TodoList.Services;
-public class SyncService
+public class SyncService : ISyncService
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly HttpClient _client;
     private readonly ApplicationDbContext _dbContext;
 
-    public SyncService(IHttpClientFactory httpClientFactory, ApplicationDbContext dbContext)
+    public SyncService(HttpClient client, ApplicationDbContext dbContext)
     {
-        _httpClientFactory = httpClientFactory;
+        _client = client;
         _dbContext = dbContext;
     }
 
     public async Task SyncData(string url)
     {
-        var client = _httpClientFactory.CreateClient();
-        var response = await client.GetAsync(url);
+        var response = await _client.GetAsync(url);
         if (!response.IsSuccessStatusCode)
             throw new InvalidOperationException($"Falha ao obter dados ({response.StatusCode})");
         

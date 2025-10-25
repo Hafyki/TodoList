@@ -11,7 +11,6 @@ namespace TodoList.Models.Entities
         [JsonPropertyName("completed")]
         public bool IsCompleted {  get; set; } = false;
         [JsonPropertyName("userId")]
-
         public int UserId { get; set; }
         public User? User { get; set; }
     }

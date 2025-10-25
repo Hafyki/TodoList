@@ -1,16 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TodoList.DTO;
 using TodoList.Models.Entities;
 using TodoList.Services;
 
 namespace TodoList.Controllers
 {
-    [Route("api/todos")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ToDosController : ControllerBase
     {
-        private readonly ToDoService _toDoService;
+        private readonly IToDoService _toDoService;
 
-        public ToDosController(ToDoService toDoService)
+        public ToDosController(IToDoService toDoService)
         {
             _toDoService = toDoService;
         }
@@ -52,11 +53,26 @@ namespace TodoList.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(ToDo newToDo)
+        public async Task<IActionResult> Add(ToDoDto newToDo)
         {
-            if (newToDo == null) return BadRequest();
-            var todo = await _toDoService.Add(newToDo);
-            return CreatedAtAction(nameof(GetById), new { id = todo.Id }, todo);
+            try
+            {
+                var todo = await _toDoService.Add(newToDo);
+                return CreatedAtAction(nameof(GetById), new {id = todo.Id},todo);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+            
+        
+            
         }
     }
 }
