@@ -115,11 +115,6 @@ Busca dados de `https://jsonplaceholder.typicode.com/todos` e persiste no banco 
 ```
 Server=localhost\\SQLEXPRESS01;Database=ToDoListDb;Trusted_Connection=True;TrustServerCertificate=True
 ```
-
-- Para testes de integração a configuração usa **InMemory** para isolamento.  
-- Migrations: use `dotnet ef migrations add <Name>` e `dotnet ef database update` quando usar providers baseados em arquivo/SQL.
-- Nos testes de integração, a fábrica de testes (CustomWebApplicationFactory) cria banco InMemory e faz `EnsureDeleted()` + `EnsureCreated()` para isolamento.
-
 ---
 
 ## Frontend (SAPUI5)
@@ -149,7 +144,7 @@ Server=localhost\\SQLEXPRESS01;Database=ToDoListDb;Trusted_Connection=True;Trust
 - .NET SDK (net8.0/9.0 conforme projeto) — `dotnet --version`  
 - Node.js + npm (para UI5 tooling) — `node -v`, `npm -v`  
 - SQL Server Express (ou ajuste `ConnectionStrings` para SQLite)  
-- (Opcional) UI5 CLI: `npm i -g @ui5/cli`
+- UI5 CLI: `npm i -g @ui5/cli`
 
 ### Backend
 
@@ -196,43 +191,6 @@ Server=localhost\\SQLEXPRESS01;Database=ToDoListDb;Trusted_Connection=True;Trust
 3. Abra: `http://localhost:8080`
 
 > Certifique-se que o frontend está apontando para o endpoint correto do backend (`http://localhost:5128` ou `https://localhost:7210`) ao construir URLs nas chamadas `fetch`.
-
----
-
-## Testes de Integração (xUnit)
-
-### Executar testes
-Na raiz da solution (onde está `.sln`):
-```bash
-dotnet test
-```
-
-### Notas importantes para testes funcionar corretamente
-
-- O `WebApplicationFactory` deve apontar para o `Program` do projeto SUT (API). Em projetos .NET minimal, `Program` é gerado implicitamente; exponha-o ao assembly de testes com `InternalsVisibleTo`:
-  ```xml
-  <ItemGroup>
-    <InternalsVisibleTo Include="TodoList.IntegrationTests" />
-  </ItemGroup>
-  ```
-  (adicione ao `.csproj` do backend se necessário)
-- Para evitar conflito de providers EF (SqlServer vs InMemory), condicione a configuração do DbContext por ambiente em `Program.cs`:
-  ```csharp
-  if (builder.Environment.IsEnvironment("IntegrationTests"))
-      builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseInMemoryDatabase("InMemoryForTests"));
-  else
-      builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlServer(connectionString));
-  ```
-  e no `CustomWebApplicationFactory` configure o ambiente:
-  ```csharp
-  builder.UseEnvironment("IntegrationTests");
-  ```
-- Geração do `testhost.deps.json`: se ocorrer erro, adicione ao `.csproj` do backend:
-  ```xml
-  <PropertyGroup>
-    <PreserveCompilationContext>true</PreserveCompilationContext>
-  </PropertyGroup>
-  ```
 
 ---
 
@@ -290,17 +248,6 @@ Sync:
 ```bash
 curl -X POST "http://localhost:5128/api/sync"
 ```
-
----
-
-## Boas práticas e debugging (dicas rápidas)
-
-- **Erros de leitura do body**: leia `response.Text()` apenas **uma vez** e parse manualmente, porque o stream só pode ser lido uma vez.
-- **Padronize erros**: sempre retorne JSON `{ "message": "..." }` para erros de regra de negócio — facilita frontend e testes.
-- **Seed consistente nos testes**: use `factory.Services.CreateScope()` para obter `ApplicationDbContext` do host de teste e `EnsureDeleted()` + `EnsureCreated()` antes de inserir dados.
-- **Isolamento InMemory**: use um banco em memória por ambiente de teste (ou limpar entre testes) para evitar flakiness.
-- **CORS**: habilite para `http://localhost:8080` enquanto desenvolve o front separado do back.
-- **Logs**: mirar logs do ASP.NET Core (Developer Exception Page) para rastrear 404/500 durante testes.
 
 ---
 
