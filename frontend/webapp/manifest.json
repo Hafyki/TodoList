@@ -5,8 +5,8 @@
 		"applicationVersion": {
 			"version": "1.0.0"
 		},
-		"title": "Responsive Table",
-		"description": "Responsive Table application",
+		"title": "ToDoList FrontApi",
+		"description": "Frontend da Aplicação REST de Tarefas",
 		"dataSources": {
 			"todoRemoteService": {
                 "uri": "http://localhost:5128/api/todos",
@@ -25,8 +25,13 @@
 	"sap.ui5": {
 		"flexEnabled": false,
 		"resourceRoots": {
-            "responsive.table.sample": "./"
+            "com.todolist": "./"
         },
+		"rootView": {
+			"viewName": "com.todolist.view.ToDoList",
+			"type": "XML",
+			"async": true
+		},
 		"dependencies": {
 			"minUI5Version": "1.120.0",
 			"libs": {
@@ -44,15 +49,60 @@
 		},
 		"handleValidation": true,
 		"models": {
-			"todoModel": {
+			"todoListModel": {
 				"type": "sap.ui.model.json.JSONModel",
 				"uri": "http://localhost:5128/api/todos",
 				"settings": {}
-    		}
+    		},
+			"todoDetailsModel":{
+				"type": "sap.ui.model.json.JSONModel",
+				"uri": "http://localhost:5128/api/todos/",
+				"settings": {}
+			}
 		},
-		"rootView": {
-			"viewName": "com.todolist.view.ToDoList",
-			"type": "XML"
+		"routing":{
+			"config":{
+				"routerClass":"sap.m.routing.Router",
+				"type": "View",
+				"viewType": "XML",
+				"path": "com.todolist.view",
+				"controlId": "app",
+				"controlAggregation": "pages",
+				"transition": "slide",
+				"async": true,
+				"bypassed":{
+					"target": "notFound"
+				} 
+			},
+			"routes":[
+				{
+					"pattern": "",
+					"name": "todoList",
+					"target": "todoList"
+				},
+				{
+					"pattern": "details/{id}",
+					"name": "details",
+					"target": "details"
+				}
+			],
+			"targets":{
+				"todoList":{
+					"id":"todolist",
+					"name":"TodoList",
+					"level":1	
+				},
+				"notFound":{
+					"id":"notFound",
+					"name":"NotFound",
+					"transition":"show"
+				},
+				"details":{
+					"id":"details",
+					"name":"ToDoDetails"
+				}
+			}
 		}
+		
 	}
 }
