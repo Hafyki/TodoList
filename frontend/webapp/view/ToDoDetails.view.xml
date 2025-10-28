@@ -1,0 +1,22 @@
+<mvc:View
+    controllerName="com.todolist.controller.ToDoDetails"
+    height="100%"
+	displayBlock="true"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:f="sap.f"
+	xmlns:core="sap.ui.core"
+	xmlns:mdc="sap.ui.mdc"
+	xmlns:vm="sap.ui.fl.variants"
+	xmlns:upload="sap.m.upload">
+     <Page title="Detalhes da Tarefa">
+        <content>
+            <VBox class="sapUiSmallMargin">
+                <Text text="ID: {todoModel>id}" />
+                <Text text="Título: {todoModel>title}" />
+                <Text text="Usuário: {todoModel>userId}" />
+                <Text text="Status: {= ${todoModel>isCompleted} ? 'Concluída' : 'Pendente' }" />
+            </VBox>
+        </content>
+  </Page>
+    </mvc:View>

@@ -24,7 +24,6 @@ namespace TodoList.Services
         {
             if (pageNumber <= 0) pageNumber = 1;
             if (pageSize <= 10) pageSize = 10;
-
             IQueryable<ToDo> query = _dbContext.ToDos.AsQueryable();
 
             query = sortBy?.ToLower() switch

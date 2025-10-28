@@ -30,7 +30,6 @@
                             <Text
                                 id = "totalTasks"
                                 text="Tarefas"
-                                level="H2"
                             />
                             <ToolbarSpacer />
                 
@@ -113,6 +112,12 @@
                             <Label text="Status" />
                         </header>
                     </Column>
+                    <Column id="details">
+                        <header>
+                            <Label text="Detalhes" />
+                        </header>
+                    
+                    </Column>
                 </columns>
                 <items>
                     <ColumnListItem>
@@ -125,6 +130,11 @@
                                 text=""
                                 enabled="true"
                                 select=".onStatusChange"
+                            />
+                            <Button 
+                            text="Detalhes" 
+                            enabled="true" 
+                            press="onNavigateToDetails"
                             />
                             
                         </cells>

@@ -1,0 +1,11 @@
+<mvc:View
+   controllerName="com.todolist.controller.NotFound"
+   xmlns="sap.m"
+   xmlns:mvc="sap.ui.core.mvc">
+   <MessagePage
+        title="Not Found"
+        text="Parece que essa página não existe!"
+        description="Cheque a URL e tente novamente."
+        showNavButton="true"
+        navButtonPress="onNavBack"/>
+</mvc:View>

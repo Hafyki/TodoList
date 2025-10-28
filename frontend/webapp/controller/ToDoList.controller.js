@@ -1,5 +1,5 @@
 sap.ui.define([
-    "sap/ui/core/mvc/Controller",
+    "com/todolist/controller/BaseController",
 ], function (Controller) {
     "use strict";
 
@@ -200,6 +200,13 @@ sap.ui.define([
             .finally(() => {
                 sap.ui.core.BusyIndicator.hide();
             });
+        },
+        onNavigateToDetails: function(oEvent){
+            var oButton = oEvent.getSource();
+            var oContext = oButton.getBindingContext("todoModel");
+            var oData = oContext.getObject();
+
+            this.getOwnerComponent().getRouter().navTo("details",{id : oData.id});
         }
         
     });
