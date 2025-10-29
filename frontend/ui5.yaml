@@ -3,8 +3,8 @@ metadata:
   name: com.todolist
 type: application
 framework:
-  name: SAPUI5
-  version: "1.141.0"
+  name: OpenUI5
+  version: "1.141.2"
   libraries:
     - name: themelib_sap_horizon
     - name: sap.f
