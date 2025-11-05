@@ -6,13 +6,7 @@
 			"version": "1.0.0"
 		},
 		"title": "ToDoList FrontApi",
-		"description": "Frontend da Aplicação REST de Tarefas",
-		"dataSources": {
-			"todoRemoteService": {
-                "uri": "http://localhost:5128/api/todos",
-                "type": "REST"
-            }
-		}
+		"description": "Frontend da Aplicação REST de Lista de Tarefas"
 	},
 	"sap.ui": {
 		"technology": "UI5",
@@ -20,9 +14,7 @@
 			"desktop": true,
 			"tablet": true,
 			"phone": true
-		}
-	},
-	"sap.ui5": {
+		},
 		"flexEnabled": false,
 		"resourceRoots": {
             "com.todolist": "./"

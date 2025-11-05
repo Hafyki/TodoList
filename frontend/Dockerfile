@@ -2,18 +2,16 @@ FROM node:20-alpine3.22
 
 WORKDIR /app
 
-COPY package.json .
-
-COPY package-lock.json .
+COPY package.json package-lock.json /app/
 
 RUN npm install
 
+RUN npm set @sap:registry=https://registry.npmjs.org
+
 COPY . .
-RUN npm i -D @ui5/cli
-RUN npx ui5 use OpenUI5
-RUN npx ui5 add themelib_sap_horizon sap.f sap.m sap.ui.core sap.ui.fl sap.ui.mdc sap.ui.table
 
 EXPOSE 8080
 
+#CMD ["npm", "start"]
 CMD ["npx","ui5","serve","--port","8080","--accept-remote-connections"]
 

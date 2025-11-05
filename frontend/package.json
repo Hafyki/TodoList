@@ -1,8 +1,8 @@
 {
   "name": "com.todolist",
   "version": "1.0.0",
-  "author": "SAP SE",
-  "description": "Frontend da aplicação com SAP UI5",
+  "author": "Hafy Mourad J C Kouzak",
+  "description": "Frontend da aplicação de Lista de Tarefas utilizando SAP UI5",
   "scripts": {
     "start": "ui5 serve",
     "build": "ui5 build"
